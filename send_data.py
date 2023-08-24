@@ -69,14 +69,31 @@ def senser_get(ser,pi):
         #add 2023/08/23
         if (tmp_termo >= THERMO_HIGT):
             msg = b"\x02"
-        else if (tmp_termo >= THERMO_LOW):
+        elif (tmp_termo >= THERMO_LOW):
             msg = b"\x01"
         else:
             msg = b"\x00"
         ser.write(msg)
 
-        
+        bme280.init_bme280()
+        bme280.read_compensate()
+        tmp,prs,hum = bme280.read_data()
 
+        tmp = round(tmp,1)
+        #print(tmp)
+        tmp = tmp * 10
+        ttmp = tmp % 256
+        tttmp = int(tmp) >> 8
+        #tmp_termo = (256 * tttmp + ttmp)/10
+        #print(tmp_termo)
+
+        msg = ttmp.to_bytes(1,d_ed)
+        ser.write(msg)
+
+        msg = tttmp.to_bytes(1,d_ed)
+        ser.write(msg)
+
+        #end
         msg = b"\x03"
         ser.write(msg)
 
